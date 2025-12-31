@@ -15,6 +15,6 @@ namespace FileStorage.Domain.Entities
         public DateTime CreatedAtUtc { get; set; }
         public DateTime? DeletedAtUtc { get; set; }
         public int Version { get; set; }
-        public Guid CreatedByUserId { get; set; }
+        public string CreatedByUserId { get; set; } = null!;
     }
 }

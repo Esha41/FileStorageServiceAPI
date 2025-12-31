@@ -1,5 +1,6 @@
 ﻿using FileStorage.Application.Interfaces;
 using FileStorage.Application.Models.Configurations;
+using FileStorage.Domain.Enums;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
@@ -11,22 +12,17 @@ namespace FileStorage.Infrastructure.Security
     public class JwtTokenService: IJwtTokenService
     {
         private readonly IConfiguration _configuration;
-       // private readonly List<LoginModel> _users;
         public JwtTokenService(IConfiguration config)
         {
             _configuration = config;
-          //  _users = _configuration.GetSection("Users").Get<List<LoginModel>>() ?? new List<LoginModel>();
         }
 
-        public string GenerateToken(string username, string password)
+        public string GenerateToken(string username, string role)
         {
-            //var user = _users.FirstOrDefault(u => u.Username == username && u.Password == password);
-            //if (user == null) return null;
-
             var claims = new List<Claim>
             {
                 new Claim(ClaimTypes.Name, username),
-              //  new Claim(ClaimTypes.Role, user.Role)
+                new Claim(ClaimTypes.Role, role.ToString())
             };
 
             var jwtSettings = _configuration.GetSection("JwtSettings").Get<JWTConfig>();

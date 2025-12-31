@@ -3,9 +3,11 @@ using FileStorage.Application.Models.Configurations;
 using FileStorage.Application.Services;
 using FileStorage.Domain.Interfaces;
 using FileStorage.Infrastructure;
+using FileStorage.Infrastructure.LocalFileStorageService;
 using FileStorage.Infrastructure.Repositories;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -16,9 +18,10 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<IFileStorageService, FileStorageService>();
 builder.Services.AddScoped<IFileStorageRepository, FileStorageRepository>();
+builder.Services.AddScoped<ILocalFileStorageService, LocalFileStorageService>();
 
 //JWT authentication configuration
-var jwtSettings = builder.Configuration.GetSection("Jwt").Get<JWTConfig>();
+var jwtSettings = builder.Configuration.GetSection("JwtSettings").Get<JWTConfig>();
 
 // Add Infrastructure services
 builder.Services.AddInfrastructure(builder.Configuration);
@@ -27,6 +30,34 @@ builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddAutoMapper(cfg =>
 {
     cfg.AddProfile<FileStorage.Application.Models.Mapping.MappingProfile>();
+});
+
+builder.Services.AddSwaggerGen(c =>
+{
+    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Name = "Authorization",
+        Type = SecuritySchemeType.Http,
+        Scheme = "Bearer",
+        BearerFormat = "JWT",
+        In = ParameterLocation.Header,
+        Description = "Enter JWT Bearer token"
+    });
+
+    c.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            new string[] { }
+        }
+    });
 });
 
 builder.Services.AddAuthentication(options =>
