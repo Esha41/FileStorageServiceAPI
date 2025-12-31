@@ -1,5 +1,5 @@
-﻿using FileStorage.Application.Interfaces;
-using FileStorage.Application.Models;
+﻿using FileStorage.Application.DTOs;
+using FileStorage.Application.Interfaces;
 using FileStorage.Domain.Entities;
 using FileStorage.Domain.Interfaces;
 
@@ -80,6 +80,18 @@ namespace FileStorage.Application.Services
             catch (Exception)
             {
                 return false;
+            }
+        }
+
+        public async Task<(IEnumerable<StoredObject> Items, int TotalCount)> GetAllFiles(FilesQueryDto filesQuery)
+        {
+            try
+            {
+                return await _fileStorageRepository.GetAllFiles(filesQuery.Name, filesQuery.Tag, filesQuery.ContentType, filesQuery.DateFrom, filesQuery.DateTo, filesQuery.PageNumber, filesQuery.PageSize);
+            }
+            catch (Exception)
+            {
+                throw;
             }
         }
     }

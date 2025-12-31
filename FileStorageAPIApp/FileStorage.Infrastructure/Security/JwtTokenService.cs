@@ -1,6 +1,5 @@
-﻿using FileStorage.Application.Interfaces;
-using FileStorage.Application.Models.Configurations;
-using FileStorage.Domain.Enums;
+﻿using FileStorage.Application.DTOs.Configurations;
+using FileStorage.Application.Interfaces;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;

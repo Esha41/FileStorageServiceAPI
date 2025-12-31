@@ -1,5 +1,5 @@
+using FileStorage.Application.DTOs.Configurations;
 using FileStorage.Application.Interfaces;
-using FileStorage.Application.Models.Configurations;
 using FileStorage.Application.Services;
 using FileStorage.Domain.Interfaces;
 using FileStorage.Infrastructure;
@@ -35,7 +35,7 @@ builder.Services.AddInfrastructure(builder.Configuration);
 // Add AutoMapper configuration
 builder.Services.AddAutoMapper(cfg =>
 {
-    cfg.AddProfile<FileStorage.Application.Models.Mapping.MappingProfile>();
+    cfg.AddProfile<FileStorage.Application.DTOs.Mapping.MappingProfile>();
 });
 
 builder.Services.AddSwaggerGen(c =>

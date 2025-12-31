@@ -1,5 +1,5 @@
 ﻿
-namespace FileStorage.Application.Models.Configurations
+namespace FileStorage.Application.DTOs.Configurations
 {
     public class JWTConfig
     {

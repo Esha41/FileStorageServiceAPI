@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
 using FileStorage.Domain.Entities;
 
-namespace FileStorage.Application.Models.Mapping
+namespace FileStorage.Application.DTOs.Mapping
 {
     public class MappingProfile : Profile
     {

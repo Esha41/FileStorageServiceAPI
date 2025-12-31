@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using System.ComponentModel.DataAnnotations;
 
-namespace FileStorage.Application.Models
+namespace FileStorage.Application.DTOs
 {
     public class UploadFileDto
     {

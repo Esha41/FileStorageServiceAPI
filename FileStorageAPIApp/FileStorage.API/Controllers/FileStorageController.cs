@@ -1,5 +1,5 @@
+using FileStorage.Application.DTOs;
 using FileStorage.Application.Interfaces;
-using FileStorage.Application.Models;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FileStorage.API.Controllers
@@ -36,13 +36,22 @@ namespace FileStorage.API.Controllers
         }
 
         // GET /api/files
-        //[HttpGet]
-        //// [Authorize(Roles = "Admin,User")]
-        //public async Task<IActionResult> GetAll()
-        //{
-        //    var files = await _fileService.GetAllFiles();
-        //    return Ok(files); // returns list of StoredObjectDto
-        //}
+        [HttpGet]
+        // [Authorize(Roles = "Admin,User")]
+        public async Task<IActionResult> GetAll([FromQuery] FilesQueryDto filesQuery)
+        {
+            var (items, totalCount) = await _fileService.GetAllFiles(filesQuery);
+
+            var response = new
+            {
+                TotalCount = totalCount,
+                PageNumber = filesQuery.PageNumber,
+                PageSize = filesQuery.PageSize,
+                Items = items
+            };
+
+            return Ok(response);
+        }
 
         // GET /api/files/{id}/download
         [HttpGet("{id}/download")]

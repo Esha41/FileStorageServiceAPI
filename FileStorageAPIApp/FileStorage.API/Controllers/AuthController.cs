@@ -1,5 +1,5 @@
-﻿using FileStorage.Application.Interfaces;
-using FileStorage.Application.Models;
+﻿using FileStorage.Application.DTOs;
+using FileStorage.Application.Interfaces;
 using FileStorage.Domain.Enums;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
