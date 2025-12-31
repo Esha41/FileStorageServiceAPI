@@ -66,6 +66,9 @@ nunit-*.xml
 [Rr]eleasePS/
 dlldata.c
 
+# Local file storage (uploaded files)
+_storage/
+
 # Benchmark Results
 BenchmarkDotNet.Artifacts/
 
