@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace FileStorage.Infrastructure.DbContext
+namespace FileStorage.Application.Interfaces
 {
-    public class ApplicationDbContext
+    public interface IFileStorageService
     {
     }
 }
