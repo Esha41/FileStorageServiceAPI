@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace FileStorage.Infrastructure.DbContext
 {
-    internal class ApplicationDbContext
+    public class ApplicationDbContext
     {
     }
 }
