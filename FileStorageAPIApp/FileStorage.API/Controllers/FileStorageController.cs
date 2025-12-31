@@ -35,6 +35,15 @@ namespace FileStorage.API.Controllers
             }
         }
 
+        // GET /api/files
+        //[HttpGet]
+        //// [Authorize(Roles = "Admin,User")]
+        //public async Task<IActionResult> GetAll()
+        //{
+        //    var files = await _fileService.GetAllFiles();
+        //    return Ok(files); // returns list of StoredObjectDto
+        //}
+
         // GET /api/files/{id}/download
         [HttpGet("{id}/download")]
         // [Authorize(Roles = "Admin,User")]

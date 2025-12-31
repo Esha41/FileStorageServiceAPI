@@ -3,6 +3,8 @@ using FileStorage.Application.Models.Configurations;
 using FileStorage.Application.Services;
 using FileStorage.Domain.Interfaces;
 using FileStorage.Infrastructure;
+using FileStorage.Infrastructure.AppDbContext;
+using FileStorage.Infrastructure.HealthChecks;
 using FileStorage.Infrastructure.LocalFileStorageService;
 using FileStorage.Infrastructure.Repositories;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -12,8 +14,12 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+// Add HealthChecks ( Database reachability, Filesystem read/write permission check)
+builder.Services.AddHealthChecks()
+    .AddDbContextCheck<ApplicationDbContext>(name: "database-check")
+    .AddCheck<FileSystemHealthCheck>("filesystem-check");
 
+// Add services to the container.
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<IFileStorageService, FileStorageService>();
