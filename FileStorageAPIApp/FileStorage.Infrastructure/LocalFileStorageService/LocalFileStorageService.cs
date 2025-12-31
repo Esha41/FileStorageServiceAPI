@@ -9,10 +9,14 @@ namespace FileStorage.Infrastructure.LocalFileStorageService
     public class LocalFileStorageService : ILocalFileStorageService
     {
         private readonly string _basePath;
+        private readonly string _fileName;
+        private readonly string _metaName;
 
         public LocalFileStorageService(IConfiguration configuration)
         {
-            _basePath = configuration["Storage:BaseFilePath"] ?? "_storage";
+            _basePath = configuration["FileStorage:BaseFilePath"] ?? "_storage";
+            _fileName = configuration["FileStorage:FileName"] ?? "content.bin";
+            _metaName = configuration["FileStorage:MetaFile"] ?? "metadata.json";
             Directory.CreateDirectory(_basePath);
         }
         public async Task<StoredObject> UploadFile(Stream fileStream, string originalName, string contentType, string[]? tags, string userId)
@@ -20,9 +24,7 @@ namespace FileStorage.Infrastructure.LocalFileStorageService
             try
             {
                 // create folder structure to store file locally
-                var datePath = Path.Combine(DateTime.UtcNow.ToString("yyyy"),
-                                            DateTime.UtcNow.ToString("MM"),
-                                            DateTime.UtcNow.ToString("dd"));
+                var datePath = Path.Combine(DateTime.UtcNow.ToString("yyyy"),DateTime.UtcNow.ToString("MM"),DateTime.UtcNow.ToString("dd"));
                 var folderPath = Path.Combine(_basePath, datePath);
                 Directory.CreateDirectory(folderPath);
 
@@ -30,7 +32,7 @@ namespace FileStorage.Infrastructure.LocalFileStorageService
                 var fileFolder = Path.Combine(folderPath, fileKey);
                 Directory.CreateDirectory(fileFolder);
 
-                var filePath = Path.Combine(fileFolder, "content.bin");
+                var filePath = Path.Combine(fileFolder, _fileName);
                 var tempFilePath = filePath + ".tmp";
 
                 // compute checksum to ensure file integrity
@@ -72,7 +74,7 @@ namespace FileStorage.Infrastructure.LocalFileStorageService
                 };
 
                 // file metadata, store data to metadata.json
-                var metadataPath = Path.Combine(fileFolder, "metadata.json");
+                var metadataPath = Path.Combine(fileFolder, _metaName);
                 var metadataJson = JsonSerializer.Serialize(storedObject, new JsonSerializerOptions { WriteIndented = true });
                 await File.WriteAllTextAsync(metadataPath, metadataJson);
 

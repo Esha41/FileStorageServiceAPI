@@ -1,6 +1,7 @@
 using FileStorage.Application.DTOs;
 using FileStorage.Application.Interfaces;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 
 namespace FileStorage.API.Controllers
 {
@@ -10,8 +11,11 @@ namespace FileStorage.API.Controllers
     {
         private readonly ILogger<FileStorageController> _logger;
         private readonly IFileStorageService _fileService;
-        public FileStorageController(IFileStorageService fileService, ILogger<FileStorageController> logger)
+        private readonly string[] _allowedContentTypes;
+        public FileStorageController(IFileStorageService fileService, ILogger<FileStorageController> logger, IConfiguration configuration)
         {
+            _allowedContentTypes = configuration.GetSection("FileStorage:AllowedContentTypes").Get<string[]>() ?? Array.Empty<string>();
+
             _fileService = fileService;
             _logger = logger;
         }
@@ -24,6 +28,9 @@ namespace FileStorage.API.Controllers
         {
             try
             {
+                if (!_allowedContentTypes.Contains(uploadFile.File.ContentType))
+                    throw new InvalidOperationException($"File type '{uploadFile.File.ContentType}' is not allowed.");
+
                 var stream = uploadFile.File.OpenReadStream();
                 var userId = User.Identity!.Name ?? "admin";
                 var stored = await _fileService.UploadFile(stream, uploadFile.File.FileName, uploadFile.File.ContentType, uploadFile.Tags, userId);
