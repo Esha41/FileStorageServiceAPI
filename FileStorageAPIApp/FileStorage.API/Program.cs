@@ -122,7 +122,10 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+//register custom middlewares
 app.UseMiddleware<CorrelationIdMiddleware>();
+app.UseMiddleware<ExceptionMiddleware>();
 
 app.UseSerilogRequestLogging(options =>   // 2️⃣ Request logging
 {

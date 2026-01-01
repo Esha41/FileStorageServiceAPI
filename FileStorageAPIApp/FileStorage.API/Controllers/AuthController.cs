@@ -35,7 +35,7 @@ namespace FileStorage.API.Controllers
                 if (user == null)
                 {
                     _logger.LogWarning("Login failed. Invalid credentials. Username={Username}", login.Username);
-                    throw new Exception("Invalid username or password");
+                    throw new UnauthorizedAccessException("Invalid username or password");
                 }
 
                 var token = _token.GenerateToken(user.Username, user.Role ?? Role.Admin.ToString());
@@ -46,7 +46,7 @@ namespace FileStorage.API.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Login error. Username={Username}", login.Username);
-                return BadRequest(ex.Message);
+                throw;
             }
         }
     }

@@ -43,8 +43,7 @@ namespace FileStorage.API.Controllers
                         uploadFile.File.ContentType,
                         userId
                     );
-
-                    return BadRequest("File type not allowed.");
+                    throw new InvalidOperationException("File type not allowed.");
                 }
 
                 var stream = uploadFile.File.OpenReadStream();
@@ -69,7 +68,7 @@ namespace FileStorage.API.Controllers
                        userId
                );
 
-                return BadRequest(ex.Message);
+                throw;
             }
         }
 
@@ -104,7 +103,7 @@ namespace FileStorage.API.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Failed to fetch files list.");
-                return BadRequest("Failed to fetch files.");
+                throw;
             }
         }
 
@@ -121,7 +120,7 @@ namespace FileStorage.API.Controllers
                 if (file == null)
                 {
                     _logger.LogWarning("Download failed. File not found. FileId={id}", id);
-                    return NotFound();
+                    throw new FileNotFoundException(" File not found");
                 }
 
                 _logger.LogInformation("File download started. FileId={id}, ContentType={file.FileName}",
@@ -132,7 +131,7 @@ namespace FileStorage.API.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "File download failed. FileId={id}", id);
-                return BadRequest(ex.Message);
+                throw;
             }
         }
 
@@ -150,7 +149,7 @@ namespace FileStorage.API.Controllers
                 if (file == null)
                 {
                     _logger.LogWarning("Previewed failed. File not found. FileId={id}", id);
-                    return NotFound();
+                    throw new FileNotFoundException(" File not found");
                 }
 
                 _logger.LogInformation("File previewed. FileId={id}, ContentType={file.FileName}",
@@ -160,7 +159,7 @@ namespace FileStorage.API.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "File preview failed. FileId={id}", id);
-                return BadRequest(ex.Message);
+                throw;
             }
         }
 
@@ -177,7 +176,7 @@ namespace FileStorage.API.Controllers
                 if (!success)
                 {
                     _logger.LogWarning("Hard Soft failed. File not found. FileId={id}", id);
-                    return NotFound();
+                    throw new FileNotFoundException(" File not found");
                 }
 
                 _logger.LogInformation("File Soft deleted successfully. FileId={id}", id);
@@ -186,7 +185,7 @@ namespace FileStorage.API.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Soft delete failed. FileId={id}", id);
-                return BadRequest(ex.Message);
+                throw;
             }
         }
 
@@ -203,7 +202,7 @@ namespace FileStorage.API.Controllers
                 if (!success)
                 {
                     _logger.LogWarning("Hard delete failed. File not found. FileId={id}", id);
-                    return NotFound();
+                    throw new FileNotFoundException(" File not found");
                 }
 
                 _logger.LogInformation("File hard deleted successfully. FileId={id}", id);
@@ -212,7 +211,7 @@ namespace FileStorage.API.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Hard delete failed. FileId={id}", id);
-                return BadRequest(ex.Message);
+                throw;
             }
         }
     }
