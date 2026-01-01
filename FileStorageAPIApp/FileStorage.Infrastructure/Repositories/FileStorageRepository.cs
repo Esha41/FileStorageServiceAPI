@@ -62,9 +62,8 @@ namespace FileStorage.Infrastructure.Repositories
             await _context.SaveChangesAsync();
         }
 
-        public async Task SoftDeleteFileById(string id)
+        public async Task SoftDeleteFileById(StoredObject stored)
         {
-            var stored = await _context.StoredObjects.FindAsync(Guid.Parse(id));
             stored.DeletedAtUtc = DateTime.UtcNow;
             await _context.SaveChangesAsync();
         }

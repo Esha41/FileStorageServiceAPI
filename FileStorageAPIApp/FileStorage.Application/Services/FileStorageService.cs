@@ -80,7 +80,7 @@ namespace FileStorage.Application.Services
                     _logger.LogWarning("Soft delete failed: File not found. FileId={id}", id);
                     return false;
                 }
-
+                await _fileStorageRepository.SoftDeleteFileById(storedObject);
                 _logger.LogInformation("Soft delete operation completed. FileId={id}", id);
                 return true;
             }
@@ -103,7 +103,7 @@ namespace FileStorage.Application.Services
                     return false;
                 }
 
-                isFileDeleted = _localFileStorageService.DeleteFile(storedObject.Key);
+                _localFileStorageService.DeleteFile(storedObject.Key);
 
                 await _fileStorageRepository.HardDeleteFileById(storedObject);
                 _logger.LogInformation("Hard delete completed. FileKey={FileKey}, FileId={id}, Deleted={isFileDeleted}", storedObject.Key, id, isFileDeleted);

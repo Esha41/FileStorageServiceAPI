@@ -38,7 +38,7 @@ namespace FileStorage.Infrastructure.LocalFileStorageService
                 var filePath = Path.Combine(fileFolder, _fileName);
                 var tempFilePath = filePath + ".tmp";
 
-                _logger.LogDebug("Writing file to temporary path {TempFilePath}", tempFilePath);
+                _logger.LogInformation("Writing file to temporary path {TempFilePath}", tempFilePath);
 
                 // compute checksum to ensure file integrity
                 string checksum;
@@ -105,14 +105,14 @@ namespace FileStorage.Infrastructure.LocalFileStorageService
                 var folderPath = Directory.GetDirectories(_basePath, key, SearchOption.AllDirectories).FirstOrDefault();
                 if (folderPath == null)
                 {
-                    _logger.LogWarning("Download failed: Folder not found for FileKey={key}", key);
+                    _logger.LogError("Download failed: Folder not found for FileKey={key}", key);
                     throw new FileNotFoundException($"Folder not found for key {key}");
                 }
 
                 var filePath = Path.Combine(folderPath, "content.bin");
                 if (!File.Exists(filePath))
                 {
-                    _logger.LogWarning("Download failed: File not found at path {filePath} for FileKey={key}", filePath, key);
+                    _logger.LogError("Download failed: File not found at path {filePath} for FileKey={key}", filePath, key);
                     throw new FileNotFoundException($"File not found at path {filePath}");
                 }
 
@@ -133,8 +133,8 @@ namespace FileStorage.Infrastructure.LocalFileStorageService
                 var folderPath = Directory.GetDirectories(_basePath, key, SearchOption.AllDirectories).FirstOrDefault();
                 if (folderPath == null)
                 {
-                    _logger.LogWarning("Delete failed: Folder not found for FileKey={key}", key);
-                    throw new FileNotFoundException($"Folder not found for key {key}");
+                    _logger.LogError("Delete failed: Folder not found for FileKey={key}", key);
+                    return false;
                 }
 
                 //delete file from path
@@ -147,7 +147,7 @@ namespace FileStorage.Infrastructure.LocalFileStorageService
                 }
                 else
                 {
-                    _logger.LogWarning("File content not found at {filePath} for FileKey={key}", filePath, key);
+                    _logger.LogError("File content not found at {filePath} for FileKey={key}", filePath, key);
                 }
 
                 //delete metadata.json from path
@@ -160,7 +160,7 @@ namespace FileStorage.Infrastructure.LocalFileStorageService
                 }
                 else
                 {
-                    _logger.LogWarning("Metadata not found at {metadataPath} for FileKey={key}", metadataPath, key);
+                    _logger.LogError("Metadata not found at {metadataPath} for FileKey={key}", metadataPath, key);
                 }
 
                 //delete folder
