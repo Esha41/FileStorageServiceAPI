@@ -47,17 +47,24 @@ namespace FileStorage.API.Controllers
         // [Authorize(Roles = "Admin,User")]
         public async Task<IActionResult> GetAll([FromQuery] FilesQueryDto filesQuery)
         {
-            var (items, totalCount) = await _fileService.GetAllFiles(filesQuery);
-
-            var response = new
+            try
             {
-                TotalCount = totalCount,
-                PageNumber = filesQuery.PageNumber,
-                PageSize = filesQuery.PageSize,
-                Items = items
-            };
+                var (items, totalCount) = await _fileService.GetAllFiles(filesQuery);
 
-            return Ok(response);
+                var response = new
+                {
+                    TotalCount = totalCount,
+                    PageNumber = filesQuery.PageNumber,
+                    PageSize = filesQuery.PageSize,
+                    Items = items
+                };
+
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
         // GET /api/files/{id}/download
@@ -65,10 +72,17 @@ namespace FileStorage.API.Controllers
         // [Authorize(Roles = "Admin,User")]
         public async Task<IActionResult> Download(string id)
         {
-            var file = await _fileService.DownloadFile(id);
-            if (file == null) return NotFound();
+            try
+            {
+                var file = await _fileService.DownloadFile(id);
+                if (file == null) return NotFound();
 
-            return File(file.Stream, file.ContentType, file.FileName);
+                return File(file.Stream, file.ContentType, file.FileName);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
         // GET /api/files/{id}/preview
@@ -76,10 +90,17 @@ namespace FileStorage.API.Controllers
         // [Authorize(Roles = "Admin,User")]
         public async Task<IActionResult> Preview(string id)
         {
-            var file = await _fileService.DownloadFile(id);
-            if (file == null) return NotFound();
+            try
+            {
+                var file = await _fileService.DownloadFile(id);
+                if (file == null) return NotFound();
 
-            return File(file.Stream, file.ContentType, file.FileName);
+                return File(file.Stream, file.ContentType, file.FileName);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
         // DELETE /api/files/{id} (soft delete)
@@ -87,9 +108,16 @@ namespace FileStorage.API.Controllers
         // [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(string id)
         {
-            var success = await _fileService.SoftDeleteFileById(id);
-            if (!success) return NotFound();
-            return Ok(true);
+            try
+            {
+                var success = await _fileService.SoftDeleteFileById(id);
+                if (!success) return NotFound();
+                return Ok(true);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
         // DELETE /api/files/{id}/hard (hard delete)
@@ -97,9 +125,16 @@ namespace FileStorage.API.Controllers
         // [Authorize(Roles = "Admin,User")]
         public async Task<IActionResult> HardDelete(string id)
         {
-            var success = await _fileService.HardDeleteFileById(id);
-            if (!success) return NotFound();
-            return Ok(true);
+            try
+            {
+                var success = await _fileService.HardDeleteFileById(id);
+                if (!success) return NotFound();
+                return Ok(true);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
     }
 }
