@@ -2,6 +2,7 @@
 using FileStorage.Application.Interfaces;
 using FileStorage.Domain.Entities;
 using FileStorage.Domain.Interfaces;
+using Microsoft.Extensions.Logging;
 
 namespace FileStorage.Application.Services
 {
@@ -9,9 +10,11 @@ namespace FileStorage.Application.Services
     {
         private readonly IFileStorageRepository _fileStorageRepository;
         private readonly ILocalFileStorageService _localFileStorageService;
+        private readonly ILogger<FileStorageService> _logger;
 
-        public FileStorageService(IFileStorageRepository fileStorageRepository, ILocalFileStorageService localFileStorageService)
+        public FileStorageService(ILogger<FileStorageService> logger, IFileStorageRepository fileStorageRepository, ILocalFileStorageService localFileStorageService)
         {
+            _logger = logger;
             _fileStorageRepository = fileStorageRepository;
             _localFileStorageService = localFileStorageService;
         }
@@ -22,10 +25,12 @@ namespace FileStorage.Application.Services
             {
                 var storedObject = await _localFileStorageService.UploadFile(fileStream, originalName, contentType, tags, userId);
                 await _fileStorageRepository.AddFile(storedObject);
+                _logger.LogInformation("Upload completed. FileKey={FileKey}, OriginalName={originalName}, UserId={userId}", storedObject.Key, originalName, userId);
                 return storedObject;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                _logger.LogError(ex, "Error uploading file. OriginalName={originalName}, UserId={userId}", originalName, userId);
                 throw;
             }
         }
@@ -36,9 +41,20 @@ namespace FileStorage.Application.Services
             try
             {
                 var storedObject = await _fileStorageRepository.GetFileById(id);
-                if (storedObject.DeletedAtUtc != null) throw new InvalidOperationException("File is deleted");
+                if (storedObject == null)
+                {
+                    _logger.LogWarning("Download failed: File not found. FileId={id}", id);
+                    return null;
+                }
+
+                if (storedObject.DeletedAtUtc != null)
+                {
+                    _logger.LogWarning("Download failed: File is deleted. FileId={id}", id);
+                    throw new InvalidOperationException("File is deleted");
+                }
 
                 var fileStream = await _localFileStorageService.DownloadFile(storedObject.Key);
+                _logger.LogInformation("Download completed. FileKey={FileKey}, FileId={id}", storedObject.Key, id);
 
                 return new FileDownloadResponseDto
                 {
@@ -47,8 +63,9 @@ namespace FileStorage.Application.Services
                     FileName = storedObject.OriginalName
                 };
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                _logger.LogError(ex, "Error downloading file. FileId={id}", id);
                 throw;
             }
         }
@@ -57,11 +74,19 @@ namespace FileStorage.Application.Services
         {
             try
             {
-                await _fileStorageRepository.SoftDeleteFileById(id);
+                var storedObject = await _fileStorageRepository.GetFileById(id);
+                if (storedObject == null)
+                {
+                    _logger.LogWarning("Soft delete failed: File not found. FileId={id}", id);
+                    return false;
+                }
+
+                _logger.LogInformation("Soft delete operation completed. FileId={id}", id);
                 return true;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                _logger.LogError(ex, "Error during soft delete. FileId={id}", id);
                 return false;
             }
         }
@@ -72,13 +97,22 @@ namespace FileStorage.Application.Services
             {
                 bool isFileDeleted = true;
                 var storedObject = await _fileStorageRepository.GetFileById(id);
+                if (storedObject == null)
+                {
+                    _logger.LogWarning("Hard delete failed: File not found. FileId={id}", id);
+                    return false;
+                }
+
                 isFileDeleted = _localFileStorageService.DeleteFile(storedObject.Key);
 
                 await _fileStorageRepository.HardDeleteFileById(storedObject);
+                _logger.LogInformation("Hard delete completed. FileKey={FileKey}, FileId={id}, Deleted={isFileDeleted}", storedObject.Key, id, isFileDeleted);
+
                 return isFileDeleted;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                _logger.LogError(ex, "Error during hard delete. FileId={id}", id);
                 return false;
             }
         }
@@ -87,10 +121,23 @@ namespace FileStorage.Application.Services
         {
             try
             {
-                return await _fileStorageRepository.GetAllFiles(filesQuery.Name, filesQuery.Tag, filesQuery.ContentType, filesQuery.DateFrom, filesQuery.DateTo, filesQuery.PageNumber, filesQuery.PageSize);
+                _logger.LogInformation("Fetching all files. Query={filesQuery}", filesQuery);
+                var result = await _fileStorageRepository.GetAllFiles(
+                 filesQuery.Name,
+                 filesQuery.Tag,
+                 filesQuery.ContentType,
+                 filesQuery.DateFrom,
+                 filesQuery.DateTo,
+                 filesQuery.PageNumber,
+                 filesQuery.PageSize
+             );
+
+                _logger.LogInformation("Fetched {Count} files matching query.", result.Items.Count());
+                return result;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                _logger.LogError(ex, "Error fetching files. Query={filesQuery}", filesQuery);
                 throw;
             }
         }

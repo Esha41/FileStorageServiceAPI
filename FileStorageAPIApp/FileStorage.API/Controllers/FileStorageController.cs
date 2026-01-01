@@ -1,7 +1,6 @@
 using FileStorage.Application.DTOs;
 using FileStorage.Application.Interfaces;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
 
 namespace FileStorage.API.Controllers
 {
@@ -26,18 +25,50 @@ namespace FileStorage.API.Controllers
         // [Authorize(Roles = "Admin,User")]
         public async Task<IActionResult> Upload([FromForm] UploadFileDto uploadFile)
         {
+            var userId = User.Identity?.Name ?? "admin";
+
+            _logger.LogInformation(
+                "Upload request received. FileName={FileName}, ContentType={ContentType}, UserId={UserId}",
+                uploadFile.File.FileName,
+                uploadFile.File.ContentType,
+                userId
+            );
+
             try
             {
                 if (!_allowedContentTypes.Contains(uploadFile.File.ContentType))
-                    throw new InvalidOperationException($"File type '{uploadFile.File.ContentType}' is not allowed.");
+                {
+                    _logger.LogWarning(
+                        "Upload rejected due to invalid content type. ContentType={ContentType}, UserId={UserId}",
+                        uploadFile.File.ContentType,
+                        userId
+                    );
+
+                    return BadRequest("File type not allowed.");
+                }
 
                 var stream = uploadFile.File.OpenReadStream();
-                var userId = User.Identity!.Name ?? "admin";
-                var stored = await _fileService.UploadFile(stream, uploadFile.File.FileName, uploadFile.File.ContentType, uploadFile.Tags, userId);
-                return Ok(stored);
+                var storedFile = await _fileService.UploadFile(stream, uploadFile.File.FileName, uploadFile.File.ContentType, uploadFile.Tags, userId);
+
+                _logger.LogInformation(
+                    "File uploaded successfully. FileId={FileId}, StoredKey={Key}, SizeBytes={SizeBytes}, UserId={UserId}",
+                    storedFile.Id,
+                    storedFile.Key,
+                    storedFile.SizeBytes,
+                    userId
+               );
+
+                return Ok(storedFile);
             }
             catch (Exception ex)
             {
+                _logger.LogError(
+                       ex,
+                       "File upload failed. FileName={FileName}, UserId={UserId}",
+                       uploadFile.File.FileName,
+                       userId
+               );
+
                 return BadRequest(ex.Message);
             }
         }
@@ -47,9 +78,18 @@ namespace FileStorage.API.Controllers
         // [Authorize(Roles = "Admin,User")]
         public async Task<IActionResult> GetAll([FromQuery] FilesQueryDto filesQuery)
         {
+            _logger.LogInformation(
+                    "Get list of files. Page={Page}, Size={Size}, Filters={@Filters}",
+                    filesQuery.PageNumber,
+                    filesQuery.PageSize,
+                    filesQuery
+            );
             try
             {
                 var (items, totalCount) = await _fileService.GetAllFiles(filesQuery);
+
+                _logger.LogInformation("Files retrieved successfully. Count={Count}, Total={TotalCount}",
+                                                                        items.ToList().Count, totalCount);
 
                 var response = new
                 {
@@ -63,7 +103,8 @@ namespace FileStorage.API.Controllers
             }
             catch (Exception ex)
             {
-                return BadRequest(ex.Message);
+                _logger.LogError(ex, "Failed to fetch files list.");
+                return BadRequest("Failed to fetch files.");
             }
         }
 
@@ -72,15 +113,25 @@ namespace FileStorage.API.Controllers
         // [Authorize(Roles = "Admin,User")]
         public async Task<IActionResult> Download(string id)
         {
+            _logger.LogInformation("Download request received. FileId={id}", id);
+
             try
             {
                 var file = await _fileService.DownloadFile(id);
-                if (file == null) return NotFound();
+                if (file == null)
+                {
+                    _logger.LogWarning("Download failed. File not found. FileId={id}", id);
+                    return NotFound();
+                }
+
+                _logger.LogInformation("File download started. FileId={id}, ContentType={file.FileName}",
+                                                                                    id, file.ContentType);
 
                 return File(file.Stream, file.ContentType, file.FileName);
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex, "File download failed. FileId={id}", id);
                 return BadRequest(ex.Message);
             }
         }
@@ -90,15 +141,25 @@ namespace FileStorage.API.Controllers
         // [Authorize(Roles = "Admin,User")]
         public async Task<IActionResult> Preview(string id)
         {
+            _logger.LogInformation("Preview request received. FileId={id}", id);
+
             try
             {
                 var file = await _fileService.DownloadFile(id);
-                if (file == null) return NotFound();
 
+                if (file == null)
+                {
+                    _logger.LogWarning("Previewed failed. File not found. FileId={id}", id);
+                    return NotFound();
+                }
+
+                _logger.LogInformation("File previewed. FileId={id}, ContentType={file.FileName}",
+                                                                                    id, file.ContentType);
                 return File(file.Stream, file.ContentType, file.FileName);
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex, "File preview failed. FileId={id}", id);
                 return BadRequest(ex.Message);
             }
         }
@@ -108,14 +169,23 @@ namespace FileStorage.API.Controllers
         // [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(string id)
         {
+            _logger.LogInformation("Soft delete requested. FileId={id}", id);
+
             try
             {
                 var success = await _fileService.SoftDeleteFileById(id);
-                if (!success) return NotFound();
+                if (!success)
+                {
+                    _logger.LogWarning("Hard Soft failed. File not found. FileId={id}", id);
+                    return NotFound();
+                }
+
+                _logger.LogInformation("File Soft deleted successfully. FileId={id}", id);
                 return Ok(true);
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex, "Soft delete failed. FileId={id}", id);
                 return BadRequest(ex.Message);
             }
         }
@@ -125,14 +195,23 @@ namespace FileStorage.API.Controllers
         // [Authorize(Roles = "Admin,User")]
         public async Task<IActionResult> HardDelete(string id)
         {
+            _logger.LogInformation("Hard delete requested. FileId={id}", id);
+
             try
             {
                 var success = await _fileService.HardDeleteFileById(id);
-                if (!success) return NotFound();
+                if (!success)
+                {
+                    _logger.LogWarning("Hard delete failed. File not found. FileId={id}", id);
+                    return NotFound();
+                }
+
+                _logger.LogInformation("File hard deleted successfully. FileId={id}", id);
                 return Ok(true);
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex, "Hard delete failed. FileId={id}", id);
                 return BadRequest(ex.Message);
             }
         }

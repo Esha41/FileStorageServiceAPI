@@ -9,7 +9,7 @@ namespace FileStorage.Infrastructure.HealthChecks
 
         public FileSystemHealthCheck(IConfiguration configuration)
         {
-            _storagePath = configuration["Storage:BaseFilePath"];
+            _storagePath = configuration["FileStorage:BaseFilePath"];
         }
 
         public Task<HealthCheckResult> CheckHealthAsync(

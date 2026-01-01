@@ -1,3 +1,4 @@
+﻿using FileStorage.API.Middleware;
 using FileStorage.Application.DTOs.Configurations;
 using FileStorage.Application.Interfaces;
 using FileStorage.Application.Services;
@@ -10,9 +11,18 @@ using FileStorage.Infrastructure.Repositories;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Serilog;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
+
+//UseSerilog configurations
+builder.Host.UseSerilog((context, services, configuration) => 
+{ 
+    configuration.ReadFrom.Configuration(context.Configuration)
+    .ReadFrom.Services(services)
+    .Enrich.FromLogContext(); 
+});
 
 // Add HealthChecks ( Database reachability, Filesystem read/write permission check)
 builder.Services.AddHealthChecks()
@@ -112,6 +122,14 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+app.UseMiddleware<CorrelationIdMiddleware>();
+
+app.UseSerilogRequestLogging(options =>   // 2️⃣ Request logging
+{
+    options.MessageTemplate =
+        "HTTP {RequestMethod} {RequestPath} responded {StatusCode} in {Elapsed:0.0000} ms";
+});
+
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
