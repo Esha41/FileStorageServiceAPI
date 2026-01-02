@@ -36,6 +36,12 @@ namespace FileStorage.API.Controllers
 
             try
             {
+                if (uploadFile.File == null || uploadFile.File.Length == 0)
+                {
+                    _logger.LogWarning("No file uploaded, UserId={UserId}", userId);
+                    throw new InvalidOperationException("No file uploaded.");
+                }
+
                 if (!_allowedContentTypes.Contains(uploadFile.File.ContentType))
                 {
                     _logger.LogWarning(

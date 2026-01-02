@@ -9,6 +9,7 @@ using FileStorage.Infrastructure.HealthChecks;
 using FileStorage.Infrastructure.LocalFileStorageService;
 using FileStorage.Infrastructure.Repositories;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -99,6 +100,21 @@ builder.Services.AddAuthentication(options =>
 
 builder.Services.AddAuthorization();
 builder.Services.AddControllers();
+
+// Allow large multipart uploads (200 MB)
+var maxFileSizeMB = builder.Configuration.GetValue<int>("FileStorage:MaxFileSizeMB");
+var maxFileSizeBytes = maxFileSizeMB * 1024 * 1024;
+
+builder.Services.Configure<FormOptions>(options =>
+{
+    options.MultipartBodyLengthLimit = maxFileSizeMB * 1024 * 1024; 
+});
+
+// Configure Kestrel limits
+builder.WebHost.ConfigureKestrel(options =>
+{
+    options.Limits.MaxRequestBodySize = maxFileSizeMB * 1024 * 1024;
+});
 
 // define CORS policy
 builder.Services.AddCors(options =>

@@ -3,13 +3,13 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.9.34616.47
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FileStorage.Domain", "FileStorage.Domain\FileStorage.Domain.csproj", "{776AC00A-AFA5-40E3-84B6-347B2CDD3D69}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FileStorage.Domain", "FileStorage.Domain\FileStorage.Domain.csproj", "{776AC00A-AFA5-40E3-84B6-347B2CDD3D69}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FileStorage.Application", "FileStorage.Application\FileStorage.Application.csproj", "{6B63632B-C622-4290-9CA5-585910019284}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FileStorage.Application", "FileStorage.Application\FileStorage.Application.csproj", "{6B63632B-C622-4290-9CA5-585910019284}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FileStorage.Infrastructure", "FileStorage.Infrastructure\FileStorage.Infrastructure.csproj", "{A795E357-BA75-4A5F-9811-DCA063A10A0A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FileStorage.Infrastructure", "FileStorage.Infrastructure\FileStorage.Infrastructure.csproj", "{A795E357-BA75-4A5F-9811-DCA063A10A0A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FileStorage.API", "FileStorage.API\FileStorage.API.csproj", "{408FE0C3-A056-4A57-92F9-8D3BD6D982DB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FileStorage.API", "FileStorage.API\FileStorage.API.csproj", "{408FE0C3-A056-4A57-92F9-8D3BD6D982DB}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
