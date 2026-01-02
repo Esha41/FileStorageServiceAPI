@@ -56,7 +56,7 @@ services:
       - api-logs:/app/Logs
     depends_on:
       sqlserver:
-        condition: service_started
+        condition: service_healthy
     networks:
       - filestorage-network
     restart: unless-stopped
