@@ -5,7 +5,7 @@ services:
     container_name: filestorage-sqlserver
     environment:
       - ACCEPT_EULA=Y
-      - SA_PASSWORD=YourStrong@Passw0rd
+      - SA_PASSWORD=AdminPas@1234#
       - MSSQL_PID=Express
     ports:
       - "1433:1433"
@@ -14,7 +14,7 @@ services:
     networks:
       - filestorage-network
     healthcheck:
-      test: ["CMD-SHELL", "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P 'YourStrong@Passw0rd' -C -b -Q 'SELECT 1' || exit 1"]
+      test: ["CMD-SHELL", "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P 'AdminPas@1234#' -C -b -Q 'SELECT 1' || exit 1"]
       interval: 10s
       timeout: 5s
       retries: 20
@@ -27,7 +27,7 @@ services:
       dockerfile: Dockerfile.migrations
     container_name: filestorage-migrations
     environment:
-      - ConnectionStrings__DefaultConnection=Server=sqlserver;Database=FileStorageService;User Id=sa;Password=YourStrong@Passw0rd;TrustServerCertificate=True
+      - ConnectionStrings__DefaultConnection=Server=sqlserver;Database=FileStorageService;User Id=sa;Password=AdminPas@1234#;TrustServerCertificate=True
     depends_on:
       sqlserver:
         condition: service_healthy
@@ -47,7 +47,7 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
       - ASPNETCORE_URLS=http://+:8080
-      - ConnectionStrings__DefaultConnection=Server=sqlserver;Database=FileStorageService;User Id=sa;Password=YourStrong@Passw0rd;TrustServerCertificate=True
+      - ConnectionStrings__DefaultConnection=Server=sqlserver;Database=FileStorageService;User Id=sa;Password=AdminPas@1234#;TrustServerCertificate=True
       - JwtSettings__Issuer=http://localhost:8080/
       - JwtSettings__Audience=http://localhost:8080/
       - FileStorage__BaseFilePath=_storage

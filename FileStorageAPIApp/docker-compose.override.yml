@@ -1,6 +1,4 @@
-# Override file for development
 # This file is automatically loaded by docker-compose when running in development
-# You can customize settings here without affecting production
 
 services:
   api:

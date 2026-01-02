@@ -2,7 +2,7 @@
 set -e
 
 echo "Waiting for SQL Server to be ready..."
-until /opt/mssql-tools/bin/sqlcmd -S sqlserver -U sa -P "YourStrong@Passw0rd" -Q "SELECT 1" &> /dev/null
+until /opt/mssql-tools/bin/sqlcmd -S sqlserver -U sa -P "AdminPas@1234#" -Q "SELECT 1" &> /dev/null
 do
   echo "SQL Server is unavailable - sleeping"
   sleep 2
