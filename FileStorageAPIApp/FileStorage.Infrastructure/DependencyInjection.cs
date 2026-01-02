@@ -14,12 +14,18 @@ namespace FileStorage.Infrastructure
         {
             services.AddScoped<IJwtTokenService, JwtTokenService>();
 
-            // Register DbContext
+            // register DbContext with retry logic for transient failures
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(
                     configuration.GetConnectionString("DefaultConnection"),
-                    sql => sql.MigrationsAssembly("FileStorage.Infrastructure")
-                    ));
+                    sql => 
+                    {
+                        sql.MigrationsAssembly("FileStorage.Infrastructure");
+                        sql.EnableRetryOnFailure(
+                            maxRetryCount: 5,
+                            maxRetryDelay: TimeSpan.FromSeconds(30),
+                            errorNumbersToAdd: null);
+                    }));
 
             return services;
         }

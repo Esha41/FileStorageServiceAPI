@@ -1,0 +1,13 @@
+# Override file for development
+# This file is automatically loaded by docker-compose when running in development
+# You can customize settings here without affecting production
+
+services:
+  api:
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:8080
+    ports:
+      - "8080:8080"
+      - "5000:8080"  # Alternative port mapping
+

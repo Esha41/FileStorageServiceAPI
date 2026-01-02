@@ -17,7 +17,7 @@ namespace FileStorage.Infrastructure.Repositories
         public async Task AddFile(StoredObject entity)
         {
             await _context.StoredObjects.AddAsync(entity);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
         }
 
         public async Task<(IEnumerable<StoredObject> Items, int TotalCount)> GetAllFiles(string? name, string? tag, string? contentType, DateTime? dateFrom, DateTime? dateTo, int pageNumber, int pageSize)

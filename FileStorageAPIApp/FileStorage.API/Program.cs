@@ -9,6 +9,7 @@ using FileStorage.Infrastructure.HealthChecks;
 using FileStorage.Infrastructure.LocalFileStorageService;
 using FileStorage.Infrastructure.Repositories;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Serilog;
@@ -112,6 +113,22 @@ builder.Services.AddCors(options =>
 });
 
 var app = builder.Build();
+
+// apply database migrations
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    try
+    {
+        var context = services.GetRequiredService<ApplicationDbContext>();
+        context.Database.Migrate();
+    }
+    catch (Exception ex)
+    {
+        var logger = services.GetRequiredService<ILogger<Program>>();
+        logger.LogError(ex, "An error occurred while migrating the database.");
+    }
+}
 
 app.UseCors("AllowAngularApp");
 

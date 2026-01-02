@@ -1,0 +1,75 @@
+services:
+  # SQL Server Database
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: filestorage-sqlserver
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=YourStrong@Passw0rd
+      - MSSQL_PID=Express
+    ports:
+      - "1433:1433"
+    volumes:
+      - sqlserver-data:/var/opt/mssql
+    networks:
+      - filestorage-network
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P 'YourStrong@Passw0rd' -C -b -Q 'SELECT 1' || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+      start_period: 60s
+
+  # Database Migration Service (runs once on startup)
+  migrations:
+    build:
+      context: .
+      dockerfile: Dockerfile.migrations
+    container_name: filestorage-migrations
+    environment:
+      - ConnectionStrings__DefaultConnection=Server=sqlserver;Database=FileStorageService;User Id=sa;Password=YourStrong@Passw0rd;TrustServerCertificate=True
+    depends_on:
+      sqlserver:
+        condition: service_healthy
+    networks:
+      - filestorage-network
+    profiles:
+      - migrate
+
+  # File Storage API
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: filestorage-api
+    ports:
+      - "8080:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_URLS=http://+:8080
+      - ConnectionStrings__DefaultConnection=Server=sqlserver;Database=FileStorageService;User Id=sa;Password=YourStrong@Passw0rd;TrustServerCertificate=True
+      - JwtSettings__Issuer=http://localhost:8080/
+      - JwtSettings__Audience=http://localhost:8080/
+      - FileStorage__BaseFilePath=_storage
+    volumes:
+      - api-storage:/app/_storage
+      - api-logs:/app/Logs
+    depends_on:
+      sqlserver:
+        condition: service_started
+    networks:
+      - filestorage-network
+    restart: unless-stopped
+
+volumes:
+  sqlserver-data:
+    driver: local
+  api-storage:
+    driver: local
+  api-logs:
+    driver: local
+
+networks:
+  filestorage-network:
+    driver: bridge
+
