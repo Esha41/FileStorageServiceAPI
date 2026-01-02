@@ -92,16 +92,14 @@ FileStorageAPIApp/
 - **Filesystem Check**: Validates read/write permissions on storage directory
 
 ### 7. Structured Logging with Serilog
-- **Sinks**: Console (development) and File (production)
+- **Sinks**: Console and File
 - **Features**: 
   - Daily rolling logs
   - Correlation ID enrichment
   - 14-day retention
   - Structured JSON output
+  - Logs stored in API project folder Logs/Date/txtfile
 
-### 8. Entity Framework Core with Retry Logic
-- **Connection Resilience**: Automatic retry on transient failures (5 retries, 30s max delay)
-- **Migrations**: Automatic migration on startup for seamless deployment
 
 ## Setup Steps
 
@@ -112,7 +110,7 @@ FileStorageAPIApp/
 - Docker Desktop (for containerized deployment)
 - Visual Studio 2022 / VS Code 
 
-### Option 1: Local Development Setup
+### 1: Local Development Setup
 
 1. **Clone the repository**
    ```bash
@@ -149,24 +147,19 @@ FileStorageAPIApp/
    - API: `https://localhost:44356`
    - Swagger UI: `https://localhost:44356/swagger`
 
-### Option 2: Docker Compose Setup (Recommended)
+### 2: Docker Compose Setup (Recommended)
 
-1. **Update Docker Compose configuration** (if needed)
-   - Edit `docker-compose.yml` to modify:
-     - SQL Server password
-     - Port mappings
-
-2. **Build and start services**
+1. **Build and start services**
    ```bash
    docker compose up --build
    ````
 
-4. **Access the API**
+2. **Access the API**
    - API: `http://localhost:8080`
    - Swagger UI: `http://localhost:8080/swagger`
    - SQL Server: `localhost:1433`
 
-5. **View logs**
+3. **View logs**
    ```bash
    docker-compose logs -f api
    ```
@@ -215,7 +208,7 @@ The application includes default users for testing (configured in `appsettings.j
 
 ### Health Checks
 
-- `GET /health` - Health check endpoint
+- `GET /health/ready` - Health check endpoint
   - Returns: Health status of database and filesystem
 
 

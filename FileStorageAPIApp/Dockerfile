@@ -25,8 +25,9 @@ RUN dotnet publish "FileStorage.API.csproj" -c Release -o /app/publish /p:UseApp
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS final
 WORKDIR /app
 
-# Create directory for storage and logs
-RUN mkdir -p /app/_storage /app/Logs
+# Create directory for storage and logs with proper permissions
+RUN mkdir -p /app/_storage /app/Logs && \
+    chmod -R 755 /app/_storage /app/Logs
 
 # Copy published application
 COPY --from=publish /app/publish .
